@@ -15,6 +15,7 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+
 public class TodoAdapterRecView extends RecyclerView.Adapter<TodoAdapterRecView.ViewHolder> {
 
     private ArrayList<String> items = new ArrayList<>();
@@ -28,8 +29,7 @@ public class TodoAdapterRecView extends RecyclerView.Adapter<TodoAdapterRecView.
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_todo_rv, parent, false);
-        ViewHolder holder = new ViewHolder(view);
-        return holder;
+        return new ViewHolder(view);
     }
 
     @Override
@@ -37,37 +37,40 @@ public class TodoAdapterRecView extends RecyclerView.Adapter<TodoAdapterRecView.
         holder.txtItem.setText(items.get(position));
 
         holder.parent.setOnClickListener(view -> {
-            // Show the AlertDialog with "Edit" and "Delete" options
+            // Hiển thị AlertDialog với tùy chọn "Edit" và "Delete"
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle("Choose an action");
 
             String[] options = {"Edit", "Delete"};
-            builder.setItems(options, (dialog, which) -> {  //cho cai array tren vao thanh cac lua chon
+            builder.setItems(options, (dialog, which) -> {
 
                 if (which == 0) {
-                    // Edit option
+                    // Tùy chọn Edit
                     AlertDialog.Builder editBuilder = new AlertDialog.Builder(context);
                     editBuilder.setTitle("Edit Item");
 
                     final EditText input = new EditText(context);
-                    input.setText(items.get(position));  // Pre-fill with the current item
+                    input.setText(items.get(position));  // Hiển thị dữ liệu hiện tại
                     editBuilder.setView(input);
 
                     editBuilder.setPositiveButton("Save", (editDialog, editWhich) -> {
                         String newItem = input.getText().toString();
-                        items.set(position, newItem);  // Update the item in the list
-                        notifyItemChanged(position);  // Notify the adapter
-                        Toast.makeText(context, "Item updated", Toast.LENGTH_SHORT).show();
+
+                        if (!newItem.equals(items.get(position))) { // Kiểm tra nếu có thay đổi
+                            items.set(position, newItem);  // Cập nhật mục trong danh sách
+                            notifyItemChanged(position);  // Cập nhật UI
+                        } else {
+                            Toast.makeText(context, "No changes made", Toast.LENGTH_SHORT).show();
+                        }
                     });
 
                     editBuilder.setNegativeButton("Cancel", (editDialog, editWhich) -> editDialog.cancel());
                     editBuilder.show();
 
                 } else if (which == 1) {
-                    // Delete option
-                    items.remove(position);  // Remove the item from the list
-                    notifyItemRemoved(position);  // Notify the adapter
-                    Toast.makeText(context, "Item deleted", Toast.LENGTH_SHORT).show();
+                    // Tùy chọn Delete
+                    items.remove(position);  // Xóa mục trong danh sách
+                    notifyItemRemoved(position);  // Cập nhật UI
                 }
             });
 
@@ -87,7 +90,7 @@ public class TodoAdapterRecView extends RecyclerView.Adapter<TodoAdapterRecView.
 
     public void addItem(String item) {
         this.items.add(item);
-        notifyItemInserted(items.size() - 1); // Notify only the newly added item
+        notifyItemInserted(items.size() - 1);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
